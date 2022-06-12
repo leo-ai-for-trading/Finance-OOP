@@ -1,4 +1,4 @@
-# Finance-OOP
+# Trading-Eng
 Building a **Trading Engine** in **Python**
 
 > List of functions:
