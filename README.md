@@ -7,4 +7,5 @@ Building a **Trading Engine** in **Python**
 
 this strategy is referring to this article: http://jonathankinlay.com/2019/07/the-internal-bar-strength-indicator/
 
-![](https://github.com/leo-ai-for-trading/Finance-OOP/blob/main/clips/clip-giusta.gif)
+![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/clip-giusta.gif)
+![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/ibs.performance.png)
