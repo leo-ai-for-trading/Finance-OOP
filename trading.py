@@ -1,25 +1,47 @@
-import sys
 import yfinance as yf
+import numpy as np
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+import streamlit as st
+
 
 class Trading:
-    def __init__(self):
-        self.money = int(input("Insert the amount of money you want to invest: "))
-        #self.ticker = str(input("Insert the ticker: "))
+    def __init__(self,money):
+        self.money = money   #int(input("Insert the amount of money you want to invest: "))
+        self.ticker = "ETH-USD"   #str(input("Insert the ticker: "))
         #self.position = str(input("Insert Long or Short: "))
-
-    def get_data(self):
-        df = yf.download(self.ticker,period='5y',interval='1d')
-        return df['Adj Close']
     
-    def real_data(self):
-        while True:
-            df = yf.download(self.ticker,period='1d',interval='1m')
-            #time.sleep(5)
-            print(f"actual price of {self.ticker} is:  {str(df['Adj Close'][-1])}")
+    def get_data(self):
+        data = pd.DataFrame(data=yf.download(self.ticker,period='max',interval='1d'))
+        #data = data.reset_index()       
+        return data
+
+    def IBS(self):
+        data = self.get_data()
+        data['IBS'] = (data['Close']-data['Low'])/(data['High']-data['Low'])
+        #building trading strategy
+        #if IBS < 0.2 buy elif IBS > 0.8 sell
+        data['entry'] = np.where( data.IBS < 0.2,data['Close'],data['Open'])
+        data['exit'] = np.where(data.IBS > 0.8, data['Close'], data['Open'])
+        data['position'] = np.where(data.IBS < 0.2, 1, 0)
+        data['stock'] = (self.money/data['Close'])
+        data['profit'] = np.where(data.exit != 0,(data['Close']-data['entry']),0)
+        data['trade'] = (data.exit - data.entry) * data.stock
+        data['gain'] = (data.position * data.trade)
+        data['equity'] = data.gain.cumsum()
+        data['gain'] = np.where(data.gain != 0, data.gain,np.nan)
+    
+        plt.figure(figsize=(8,4),dpi=100)
+        plt.plot(data.equity, color='green',linewidth=1.0)
+        plt.xlabel("Period")
+        plt.ylabel("Profit-Loss")
+        plt.title("Strategy Performance")
+        plt.legend()
+        plt.show()
+
+        
+        return plt.show()
 
     def pairs(self):
         first_ticker = (input("Insert the first ticker: "))
@@ -35,27 +57,11 @@ class Trading:
             ss = yf.download(tickers[1],period='7d',interval='1m')['Close']
             dummy = pd.DataFrame(data={tickers[0]:ff,tickers[1]:ss,'ratio':ff/ss})
             dummy = dummy.dropna()
-            df = df.append(dummy.iloc[-1]).dropna() #,ignore_index=True)
-            #df['ratio'] = df['ratio'].append([dummy.iloc[-1,0]/dummy.iloc[-1,1]]).dropna()
-            #df['ratio'].append([ff[-1].item()/ss[-1].item()])
-            print(df)
-            time.sleep(5)
+            df = df.append(dummy.iloc[-1]).dropna() 
             #return df
-            
-    
-    def continous_plot(self):
-        df = self.pairs()
-        #animate function
-        plt.cla()
-        #plt.plot(df.index,df.iloc[:,0],label=df.columns[0]+' price')
-        plt.plot(df.index,df['ratio'],label='price ratio between: ' + df.columns[0] + ' and '+df.columns[1])
 
-        plt.legend(loc='upper right')
-        plt.tight_layout()
-        ani = FuncAnimation(plt.gcf(), self.continous_plot, interval=1000*60)
 
-        return ani,plt.tight_layout(),plt.show()
-        
 
 #python3 trading.py
-print(Trading().pairs())
+Trading(money=10000).IBS()
+
