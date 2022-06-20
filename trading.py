@@ -12,7 +12,6 @@ class Trading:
         self.money = int(input("Insert the amount of money you want to invest: "))
         self.ticker = str(input("Insert the ticker: "))
         self.ticker = self.ticker.upper()
-        #self.position = str(input("Insert Long or Short: "))
     
     def get_data(self):
         data = pd.DataFrame(data=yf.download(self.ticker,period='max',interval='1d'))
