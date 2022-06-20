@@ -4,12 +4,14 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-
+import sqlite3
+import datetime 
 
 class Trading:
-    def __init__(self,money):
-        self.money = money   #int(input("Insert the amount of money you want to invest: "))
-        self.ticker = "ETH-USD"   #str(input("Insert the ticker: "))
+    def __init__(self):
+        self.money = int(input("Insert the amount of money you want to invest: "))
+        self.ticker = str(input("Insert the ticker: "))
+        self.ticker = self.ticker.upper()
         #self.position = str(input("Insert Long or Short: "))
     
     def get_data(self):
@@ -31,17 +33,74 @@ class Trading:
         data['gain'] = (data.position * data.trade)
         data['equity'] = data.gain.cumsum()
         data['gain'] = np.where(data.gain != 0, data.gain,np.nan)
+        data['daily_return'] = data.gain.pct_change()
+
+        return data
+
+    def Cutler_RSI(self):
+        data = self.IBS()
+
+        data['U_t'] = np.where((data['Close'].diff(1) > 0),data['Close'].diff(1),0) 
+        data['D_t'] = -1*np.where((data['Close'].diff() < 0),data['Close'].diff(),0)
+        
+        return data
+
+    #performance report
+    def percent_win(self,strategy):
+        return round((strategy.profit[strategy.profit > 0].count()/strategy.profit.count() * 100),2)
+
+    def avg_gain(self,strategy):
+        return round(strategy.profit[strategy.profit > 0].mean(),2)
     
+    def max_gain(self,strategy):
+        return round(strategy.profit.max(),2)
+    
+    def max_gain_date(self,strategy):
+        return strategy.profit.idxmax()
+    
+    def max_loss(self,strategy):
+        return round(min(strategy.profit.min(),2))
+    
+    def max_loss_date(self,strategy):
+        return strategy.profit.idxmin()
+    
+    def sharpe_ratio(self,strategy):
+        return strategy.daily_return.mean()/strategy.daily_return.std()
+
+    def performance_report(self):
+        strategy = self.IBS()
+        d = {"Performance_Report":['Profit','Operations','Percent Winning Trades',
+        'Percent Losing Trades','Max Gain', 'Average Gain','Max Loss', 'Sharpe Ratio'],
+        'Result':[sum(strategy.profit),sum(strategy.position),self.percent_win(strategy),
+        100-self.percent_win(strategy),
+        self.max_gain(strategy),self.avg_gain(strategy),self.max_loss(strategy),
+        self.sharpe_ratio(strategy)]}
+        
+        df = pd.DataFrame(d,columns=["Performance_Report",'Result'])
+        conn = sqlite3.connect('perf_db')
+        c = conn.cursor()
+        c.execute('CREATE TABLE IF NOT EXISTS performance (Performance_Report text, Result number)')
+        conn.commit()
+        df = df.to_sql('performance',conn, if_exists='replace',index=False)
+
+        #c.execute('''
+        #SELECT * FROM performance
+        #''')
+        #for r in c.fetchall():
+        #    print(r)
+        
+        return df 
+
+    #graphic perfomance
+    def plot_performance(self,strategy):
         plt.figure(figsize=(8,4),dpi=100)
-        plt.plot(data.equity, color='green',linewidth=1.0)
+        plt.plot(strategy.equity, color='green',linewidth=1.0)
         plt.xlabel("Period")
         plt.ylabel("Profit-Loss")
         plt.title("Strategy Performance")
-        plt.legend()
-        plt.show()
-
-        
         return plt.show()
+
+
 
     def pairs(self):
         first_ticker = (input("Insert the first ticker: "))
@@ -61,7 +120,6 @@ class Trading:
             #return df
 
 
-
 #python3 trading.py
-Trading(money=10000).IBS()
-
+(Trading().performance_report())
+#Trading.plot_performance(self=Trading,strategy=a)
