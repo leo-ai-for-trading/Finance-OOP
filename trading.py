@@ -41,7 +41,11 @@ class Trading:
 
         data['U_t'] = np.where((data['Close'].diff(1) > 0),data['Close'].diff(1),0) 
         data['D_t'] = -1*np.where((data['Close'].diff() < 0),data['Close'].diff(),0)
-        
+        for i in range(n-1):
+            data['RS_t'] = ((1/n)*(data['U_t'][i]+data['U_t'][i+1])) / ((1/n)*(data['D_t'][i]+data['D_t'][i+1]))
+        data['cutler_rsi'] = np.where(sum(data['D_t']) == 0,100,(100-(100/1+data['RS_t'])))
+        #long if rsi < 10; maintain position while rsi <= 40; long if IBS <= 0.5
+        #data['strategy']
         return data
 
     #performance report
