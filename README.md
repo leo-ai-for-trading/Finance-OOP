@@ -15,4 +15,4 @@ this strategy is referring to this article: http://jonathankinlay.com/2019/07/th
 
 - **Trading.Cutler_RSI():** Cutler’s RSI indicator that shows how the IBS effect can be used to boost returns of a swing trading strategy while significantly decreasing the number of trades needed.
 Cutler’s RSI at time t is calculated as follows:
-
+![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/cutler.png)
