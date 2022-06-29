@@ -30,3 +30,9 @@ Cutler’s RSI at time t is calculated as follows:
 Trading.volatility_ratio()
 ```
 - computing ***volatility ratio*** between two different time periods in order to implement buy/sell signal
+```
+Trading.arbitrage()
+```
+- developed **abritrage** strategy[^1] between *$GLD* and *$SLV* 
+[](https://github.com/leo-ai-for-trading/Trading-Eng/upload/main/clips)
+[^1]: the strategy was implemented with 5 years historical data by using *yfinance* api
