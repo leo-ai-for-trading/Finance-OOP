@@ -1,17 +1,23 @@
+
 import yfinance as yf
 import numpy as np
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import streamlit as st
 import sqlite3
 import datetime 
+import plotly.graph_objects as go
+import plotly.express as px
+from statsmodels.tsa.stattools import adfuller
+
+
 
 class Trading:
     def __init__(self):
-        self.money = int(input("Insert the amount of money you want to invest: "))
-        self.ticker = str(input("Insert the ticker: "))
+        self.money = 1000 #int(input("Insert the amount of money you want to invest: "))
+        self.ticker = 'eth-usd' #str(input("Insert the ticker: "))
         self.ticker = self.ticker.upper()
+        #self.position = str(input("Insert Long or Short: "))
     
     def get_data(self):
         data = pd.DataFrame(data=yf.download(self.ticker,period='max',interval='1d'))
@@ -38,15 +44,46 @@ class Trading:
 
     def Cutler_RSI(self):
         data = self.IBS()
-
+        n = len(data['Close'])
         data['U_t'] = np.where((data['Close'].diff(1) > 0),data['Close'].diff(1),0) 
-        data['D_t'] = -1*np.where((data['Close'].diff() < 0),data['Close'].diff(),0)
+        data['D_t'] = -1*np.where((data['Close'].diff(1) < 0),data['Close'].diff(1),0)
         for i in range(n-1):
             data['RS_t'] = ((1/n)*(data['U_t'][i]+data['U_t'][i+1])) / ((1/n)*(data['D_t'][i]+data['D_t'][i+1]))
         data['cutler_rsi'] = np.where(sum(data['D_t']) == 0,100,(100-(100/1+data['RS_t'])))
         #long if rsi < 10; maintain position while rsi <= 40; long if IBS <= 0.5
         #data['strategy']
-        return data
+        
+        return print(data)
+
+    def arbitrage(self):
+        x = 'GLD'
+        y = 'SLV'
+        X = yf.download(x,period='max')['Close']
+        Y = yf.download(y,period='max')['Close']
+        df = pd.DataFrame({x:X,y:Y},index=None)
+        df = df.dropna()
+        df['ratio'] = df.GLD/df.SLV
+        df['log_ret'] = np.log10(df.ratio)
+        #df = df.loc[:,['Date','Close']]
+        #df.columns = []
+        fig = px.density_heatmap(df.corr(),x= x, y=y) 
+        res = (adfuller(df.ratio))
+        return res
+
+    def volatility_ratio(self,period1,period2):
+        '''
+        @period1: must be greater than 60 day
+        @period2: must be greater than 60 days
+        '''
+        x = pd.DataFrame(data=yf.download(self.ticker,period=period1,interval='1d'))
+        x = x.drop(['Volume'],axis=1)
+        x['mean_price'] = x.mean(axis=1)
+        y = pd.DataFrame(data=yf.download(self.ticker,period=period2,interval='1d'))
+        y = y.drop(['Volume'],axis=1)
+        y['mean_price'] = y.mean(axis=1)
+        vol_ratio = (x['mean_price'].mean()) / y['mean_price'].mean()
+
+        return print(vol_ratio)
 
     #performance report
     def percent_win(self,strategy):
@@ -123,6 +160,6 @@ class Trading:
             #return df
 
 
+
 #python3 trading.py
-(Trading().performance_report())
-#Trading.plot_performance(self=Trading,strategy=a)
+print(Trading().arbitrage())
