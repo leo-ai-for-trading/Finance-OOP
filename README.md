@@ -27,9 +27,10 @@ Cutler’s RSI at time t is calculated as follows:
 ![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/cutler.png)
 
 ```
-Trading.volatility_ratio()
+Trading.volatility_ratio(ticker,period1,period2)
 ```
 - computing ***volatility ratio*** between two different time periods in order to implement buy/sell signal
+![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/Schermata%202022-06-30%20alle%2016.06.00.png)
 ```
 Trading.arbitrage()
 ```
