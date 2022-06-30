@@ -70,20 +70,23 @@ class Trading:
         res = (adfuller(df.ratio))
         return res
 
-    def volatility_ratio(self,period1,period2):
+    @staticmethod
+    def volatility_ratio(ticker,period1,period2):
         '''
+        @ticker: ticker in lower letter 
         @period1: must be greater than 60 day
         @period2: must be greater than 60 days
         '''
-        x = pd.DataFrame(data=yf.download(self.ticker,period=period1,interval='1d'))
+        ticker = ticker.upper()
+        x = pd.DataFrame(data=yf.download(ticker,period=period1,interval='1d'))
         x = x.drop(['Volume'],axis=1)
         x['mean_price'] = x.mean(axis=1)
-        y = pd.DataFrame(data=yf.download(self.ticker,period=period2,interval='1d'))
+        y = pd.DataFrame(data=yf.download(ticker,period=period2,interval='1d'))
         y = y.drop(['Volume'],axis=1)
         y['mean_price'] = y.mean(axis=1)
         vol_ratio = (x['mean_price'].mean()) / y['mean_price'].mean()
 
-        return print(vol_ratio)
+        return f'the volatility ratio of {ticker} between the period of {period1} and period of {period2} is: {vol_ratio}'
 
     #performance report
     def percent_win(self,strategy):
@@ -141,7 +144,6 @@ class Trading:
         return plt.show()
 
 
-
     def pairs(self):
         first_ticker = (input("Insert the first ticker: "))
         second_ticker = (input("Insert the second ticker: "))
@@ -160,6 +162,7 @@ class Trading:
             #return df
 
 
-
+#streamlit run trading.py
 #python3 trading.py
-print(Trading().arbitrage())
+print(Trading().volatility_ratio('eth-usd','3mo','1y'))
+#Trading.plot_performance(self=Trading,strategy=a)
