@@ -31,8 +31,4 @@ Trading.volatility_ratio(ticker,period1,period2)
 ```
 - computing ***volatility ratio*** between two different time periods in order to implement buy/sell signal
 ![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/Schermata%202022-07-01%20alle%2014.35.50.png)
-```
-Trading.arbitrage()
-```
-- developed ***abritrage*** strategy[^1] between *$GLD* and *$SLV* 
-[^1]: the strategy was implemented with 5 years historical data by using *yfinance* api
+
