@@ -35,5 +35,4 @@ Trading.volatility_ratio(ticker,period1,period2)
 Trading.arbitrage()
 ```
 - developed ***abritrage*** strategy[^1] between *$GLD* and *$SLV* 
-![](https://github.com/leo-ai-for-trading/Trading-Eng/blob/main/clips/newplot.png)
 [^1]: the strategy was implemented with 5 years historical data by using *yfinance* api
